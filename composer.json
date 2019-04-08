@@ -10,10 +10,14 @@
   "license": "GPL-2.0",
   "require-dev": {
     "lucatume/wp-browser": "^2.2.1",
-    "xamin/handlebars.php": "^0.10.3",
-    "mikey179/vfsStream": "^1.6",
+    "lucatume/function-mocker": "^1.0",
+    "lucatume/function-mocker-le": "^1.0",
     "spatie/phpunit-snapshot-assertions": "^1.2",
-    "lucatume/wp-snaphot-assertions": "1.0.0"
+    "fzaninotto/faker": "^1.7",
+    "lucatume/wp-snaphot-assertions": "^1.0",
+    "wp-cli/checksum-command": "1.0.5",
+    "xamin/handlebars.php": "^0.10.3",
+    "mikey179/vfsStream": "^1.6"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
