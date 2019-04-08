@@ -10,6 +10,7 @@
   "license": "GPL-2.0",
   "require-dev": {
     "lucatume/wp-browser": "^2.2.1",
+    "codeception/codeception": "^2.5.5",
     "xamin/handlebars.php": "^0.10.3",
     "mikey179/vfsStream": "^1.6",
     "spatie/phpunit-snapshot-assertions": "^1.2",
