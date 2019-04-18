@@ -605,14 +605,7 @@ if ( ! class_exists( 'Tribe__Events__Template__Month' ) ) {
 
 
 			if ( null === $events_in_month ) {
-				/**
-				 * Documented in the `\Tribe__Events__Query::pre_get_posts` method.
-				 *
-				 * @see   \Tribe__Events__Query::pre_get_posts()
-				 *
-				 * @since TBD
-				 */
-				$use_utc = apply_filters( 'tribe_events_query_event_utc_start_date', true );
+				$use_utc = Tribe__Timezones::is_mode( 'site' );
 				$start_date_key = $use_utc ? '_EventStartDateUTC' : '_EventStartDate';
 
 				$start_date_sql = esc_sql( $start_date );
@@ -894,6 +887,14 @@ if ( ! class_exists( 'Tribe__Events__Template__Month' ) ) {
 					'orderby'                => 'post__in',
 				), $this->args
 			);
+
+			// If the request is false or not set we assume the request is for all events, not just featured ones.
+			if (
+				tribe_is_truthy( tribe_get_request_var( 'featured', false ) )
+				|| tribe_is_truthy( tribe_get_request_var( 'tribe_featuredevent', false ) )
+			) {
+				$args['featured'] = true;
+			}
 
 			/**
 			  * Filter Daily Events Query Arguments.
