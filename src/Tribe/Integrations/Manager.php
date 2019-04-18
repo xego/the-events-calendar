@@ -43,7 +43,7 @@ class Tribe__Events__Integrations__Manager {
 	/**
 	 * Loads our Events Freemius integration
 	 *
-	 * @since TBD
+	 * @since 4.9
 	 *
 	 * @return bool
 	 */
@@ -51,17 +51,17 @@ class Tribe__Events__Integrations__Manager {
 		/**
 		 * Allows third-party disabling of The Events Calendar integration
 		 *
-		 * @since  TBD
+		 * @since  4.9
 		 *
 		 * @param  bool  $should_load
 		 */
 		$should_load = apply_filters( 'tribe_events_integrations_should_load_freemius', true );
 
-		tribe_singleton( 'events.integrations.freemius', new Tribe__Events__Integrations__Freemius );
-
 		if ( ! $should_load ) {
 			return false;
 		}
+
+		tribe_singleton( 'events.integrations.freemius', new Tribe__Events__Integrations__Freemius );
 
 		return true;
 	}
