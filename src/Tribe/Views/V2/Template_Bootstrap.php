@@ -11,11 +11,11 @@
 namespace Tribe\Events\Views\V2;
 
 use Tribe__Events__Main as TEC;
+use Tribe__Events__Templates as V1_Event_Templates;
 use Tribe__Notices;
+use Tribe__Templates as V1_Templates;
 use Tribe__Utils__Array as Arr;
 use WP_Query;
-use Tribe__Templates as V1_Templates;
-use Tribe__Events__Templates as V1_Event_Templates;
 
 
 /**
@@ -97,8 +97,7 @@ class Template_Bootstrap {
 	}
 
 	/**
-	 * Detemines wether we are in a Single event page or not,
-	 * base only on global context.
+	 * Determines whether we are in a Single event page or not, base only on global context.
 	 *
 	 * @since  4.9.11
 	 *
@@ -110,9 +109,7 @@ class Template_Bootstrap {
 			'single-event' === tribe_context()->get( 'view' ),
 		];
 
-		$is_single_event = in_array( true, $conditions );
-
-		return $is_single_event;
+		return in_array( true, $conditions, true );
 	}
 
 	/**
@@ -127,6 +124,10 @@ class Template_Bootstrap {
 			Tribe__Notices::set_notice( 'event-past', sprintf( esc_html__( 'This %s has passed.', 'the-events-calendar' ), tribe_get_event_label_singular_lowercase() ) );
 		}
 		$setting = $this->get_template_setting();
+
+		// A number of TEC, and third-party, functions, depend on this. Let's fire it.
+		global $post;
+		do_action( 'the_post', $post );
 
 		ob_start();
 		if ( 'page' === $setting ) {
@@ -177,11 +178,41 @@ class Template_Bootstrap {
 		$context   = tribe_context();
 		$view_slug = $context->get( 'view' );
 
-		if (
+		/**
+		 * Filters the HTML for the view before we do any other logic around that.
+		 *
+		 * @since TBD
+		 *
+		 * @param string          $pre_html  Allow pre-filtering the HTML that we will boostrap.
+		 * @param string          $view_slug The slug of the View that will be built, based on the context.
+		 * @param \Tribe__Context $context   Tribe context used to setup the view.
+		 * @param \WP_Query       $query     The current WP Query object.
+		 */
+		$pre_html = apply_filters( 'tribe_events_views_v2_bootstrap_pre_get_view_html', null, $view_slug, $query, $context );
+
+		if ( null !== $pre_html ) {
+			return $pre_html;
+		}
+
+		$should_display_single = (
 			'single-event' === $view_slug
 			&& ! tribe_is_showing_all()
 			&& ! V1_Templates::is_embed()
-		) {
+		);
+
+		/**
+		 * Filters when we display the single for events.
+		 *
+		 * @since TBD
+		 *
+		 * @param boolean         $should_display_single  If we are currently going to display single.
+		 * @param string          $view_slug              The slug of the View that will be built, based on the context.
+		 * @param \Tribe__Context $context                Tribe context used to setup the view.
+		 * @param \WP_Query       $query                  The current WP Query object.
+		 */
+		$should_display_single = apply_filters( 'tribe_events_views_v2_bootstrap_should_display_single', $should_display_single, $view_slug, $query, $context );
+
+		if ( $should_display_single ) {
 			$html = $this->get_v1_single_event_html();
 		} elseif ( isset( $query->query_vars['tribe_events_views_kitchen_sink'] ) ) {
 			$context = [
@@ -228,6 +259,19 @@ class Template_Bootstrap {
 	public function should_load( $query = null ) {
 		if ( ! $query instanceof \WP_Query ) {
 			$query = tribe_get_global_query_object();
+		}
+
+		/**
+		 * Allows filtering if bootstrap should load.
+		 *
+		 * @since TBD
+		 *
+		 * @param null|boolean    $should_load  Anything other then null will be returned after casting as bool.
+		 * @param \WP_Query       $query        The current WP Query object.
+		 */
+		$should_load = apply_filters( 'tribe_events_views_v2_bootstrap_pre_should_load', null, $query );
+		if ( null !== $should_load ) {
+			return (bool) $should_load;
 		}
 
 		if ( ! $query instanceof \WP_Query ) {
